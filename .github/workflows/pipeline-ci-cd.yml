@@ -54,5 +54,5 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             cd ${{ env.PROJECT_PATH }}
-            sudo docker compose -p session14 pull front-app
-            sudo docker compose -p session14 up -d front-app
+            sudo docker compose -p cinema pull front-app
+            sudo docker compose -p cinema up -d front-app

@@ -1,0 +1,59 @@
+name: Front End Deployment
+on :
+  push:
+     branches:
+        - main
+
+env:
+  BUILD_NUMBER: ${{github.run_number}}
+  IMAGE_NAME: ${{vars.DOCKERHUB_USERNAME}}/front-session14
+  PROJECT_PATH: /home/user/devops-script-cinema/frontend/dev  #Docker compose path
+  DOCKER_SERVICE: front-app
+  BUILD_ARGS: --build-arg VITE_API_URL=https://api.40.lebondeveloppeur.net
+
+jobs:
+
+  # Build And Push
+  Build_And_Push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v5
+    
+      - name: Build Docker Image
+        run: docker build -t ${{env.IMAGE_NAME}} ${{env.BUILD_ARGS}} .
+
+      - name: Tag Docker Image with version
+        run: docker tag ${{env.IMAGE_NAME}} ${{env.IMAGE_NAME}}:v${{env.BUILD_NUMBER}}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: List Images
+        run: docker images
+
+      - name: Push Docker images
+        run: docker push ${{env.IMAGE_NAME}}
+
+      - name: push version image
+        run: docker push ${{env.IMAGE_NAME}}:v${{env.BUILD_NUMBER}}
+
+  # Deployment 
+  Deployment:
+    runs-on: ubuntu-latest
+    needs: Build_And_Push
+    steps:
+      - name: ssh connect and deploy
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{secrets.USERNAME}}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd ${{ env.PROJECT_PATH }}
+            sudo docker compose -p cinema pull
+            sudo docker compose -p cinema down
+            sudo docker compose -p cinema up -d

@@ -108,7 +108,7 @@ export default function Register() {
                 className="toggle-password" 
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? "👁️" : "🙈"}
+                {showPassword ? "🐵" : "🙈"}
               </span>
             </div>
             {password && (

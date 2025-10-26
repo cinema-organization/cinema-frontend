@@ -9,7 +9,7 @@ env:
   IMAGE_NAME: ${{vars.DOCKERHUB_USERNAME}}/front-session14
   PROJECT_PATH: /home/user/devops-script-cinema/frontend/dev  #Docker compose path
   DOCKER_SERVICE: front-app
-  BUILD_ARGS: --build-arg VITE_API_URL=https://api.40.lebondeveloppeur.net
+  BUILD_ARGS: --build-arg VITE_API_URL=https://api.cinema.40.lebondeveloppeur.net
 
 jobs:
 

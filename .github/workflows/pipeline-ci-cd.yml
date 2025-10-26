@@ -6,7 +6,7 @@ on :
 
 env:
   BUILD_NUMBER: ${{github.run_number}}
-  IMAGE_NAME: ${{vars.DOCKERHUB_USERNAME}}/front-session14
+  IMAGE_NAME: ${{vars.DOCKERHUB_USERNAME}}/frontend-cinema
   PROJECT_PATH: /home/user/devops-script-cinema/frontend/dev  #Docker compose path
   DOCKER_SERVICE: front-app
   BUILD_ARGS: --build-arg VITE_API_URL=https://api.cinema.40.lebondeveloppeur.net

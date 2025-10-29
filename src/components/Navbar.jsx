@@ -24,7 +24,7 @@ export default function Navbar() {
       <div className="navbar-container">
         {/* Logo */}
         <Link to="/films" className="navbar-logo">
-          <span className="navbar-logo-text">🎬 CinemaX</span>
+          <span className="navbar-logo-text">🎬 CinéGo</span>
         </Link>
 
         {/* Toggle pour mobile */}

@@ -30,7 +30,7 @@ export default function Login() {
       <div className="auth-card">
         <div className="auth-header">
           <h1 className="cinemax-title">
-            Cinéma<span>X</span>
+            Ciné<span>Go</span>
           </h1>
           <h2 className="auth-title">Connexion</h2>
         </div>

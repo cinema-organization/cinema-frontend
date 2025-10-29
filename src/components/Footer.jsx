@@ -14,7 +14,7 @@ export default function Footer() {
         <div className="footer-content">
           {/* Section CinémaX */}
           <div className="footer-section">
-            <h3 className="footer-title">CinémaX</h3>
+            <h3 className="footer-title">CinéGo</h3>
             <p className="footer-text">
               Votre destination pour réserver les meilleurs films en ligne.
             </p>
@@ -69,9 +69,9 @@ export default function Footer() {
           <div className="footer-section">
             <h4 className="footer-subtitle">Contact</h4>
             <ul className="footer-list">
-              <li className="footer-text">Email: contact@cinemax.com</li>
-              <li className="footer-text">Tél: +33 1 23 45 67 89</li>
-              <li className="footer-text">Adresse: 123 Rue du Cinéma, Paris</li>
+              <li className="footer-text">Email: contact@CinéGo.com</li>
+              <li className="footer-text">Tél: +216 29 686 411</li>
+              <li className="footer-text">Adresse: Djara, Gabes</li>
             </ul>
           </div>
 
@@ -89,7 +89,7 @@ export default function Footer() {
         {/* Bas du footer */}
         <div className="footer-bottom">
           <p className="footer-copyright">
-            © {new Date().getFullYear()} CinémaX. Tous droits réservés.
+            © {new Date().getFullYear()} CinéGo. Tous droits réservés.
           </p>
         </div>
       </div>

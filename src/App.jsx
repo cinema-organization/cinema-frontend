@@ -31,6 +31,7 @@ function App() {
          <Navbar />
         <main className="main-content">
           <Routes>
+            <Route path="/" element={<Navigate to="/films" replace />} /> 
             <Route path="/films" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

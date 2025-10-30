@@ -171,6 +171,10 @@ export const deleteSeance = async (id) => {
   }
 };
 
+export const updateSeancesStatus = () => {
+  return api.get('/seances/update-status');
+};
+
 // Réservations
 export const getMyReservations = async () => {
   try {

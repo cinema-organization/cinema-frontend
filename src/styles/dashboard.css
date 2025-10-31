@@ -1,3 +1,40 @@
+:root {
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #1a1a1a;
+  --color-bg-card: #252525;
+  --color-bg-hover: #2f2f2f;
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a0a0a0;
+  --color-text-muted: #666666;
+
+  --color-accent-red: #dc2626;
+  --color-accent-red-hover: #b91c1c;
+  --color-accent-gold: #fbbf24;
+  --color-accent-gold-hover: #f59e0b;
+
+  --color-border: #333333;
+  --color-border-light: #404040;
+
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+}
+
 .dashboard {
   padding: 40px 0;
 }
@@ -291,7 +328,7 @@
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 32px;
-  background: linear-gradient(135deg, var(--color-text-primary) 0%, var(--color-accent-gold) 100%);
+  background: linear-gradient(179deg, var(--color-accent-red) 0%, var(--color-accent-gold) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -355,6 +392,39 @@
   overflow-y: auto;
   box-shadow: var(--shadow-xl);
 }
+
+/*SECTION TRI (ManageFilms) */
+.tri-section {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-md);
+  gap: 12px;
+}
+
+.tri-section label {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.tri-section select {
+  width: 180px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 6px 8px;
+  transition: all var(--transition-fast);
+}
+
+.tri-section select:hover {
+  border-color: var(--color-accent-red-light);
+  box-shadow: 0 0 5px rgba(239, 68, 68, 0.4);
+}
+
 
 @media (max-width: 1024px) {
   .stats-grid {

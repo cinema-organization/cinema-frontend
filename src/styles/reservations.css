@@ -1,0 +1,175 @@
+/* 🎬 PAGE : Mes Réservations - Style harmonisé avec Navbar & Footer CinéGo */
+
+.reservations-container {
+  max-width: 1200px;
+  margin: 120px auto 80px;
+  padding: 0 20px;
+  color: var(--color-text-primary);
+}
+
+/* Header */
+.reservations-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.reservations-title {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, var(--color-accent-red) 0%, var(--color-accent-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* État vide */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: rgba(20, 20, 20, 0.9);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-text-secondary);
+}
+
+.empty-state-icon {
+  font-size: 56px;
+  color: var(--color-accent-red);
+  margin-bottom: 16px;
+}
+
+.empty-state h2 {
+  margin-bottom: 8px;
+  font-size: 24px;
+  color: var(--color-text-primary);
+}
+
+.empty-state p {
+  color: var(--color-text-secondary);
+  margin-bottom: 24px;
+}
+
+/* Liste */
+.reservations-list {
+  display: grid;
+  gap: 28px;
+}
+
+/* Carte */
+.reservation-card {
+  background: rgba(15, 15, 15, 0.95);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  padding: 24px;
+  transition: all var(--transition-normal);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.reservation-card:hover {
+  border-color: var(--color-accent-red);
+  box-shadow: 0 4px 20px rgba(255, 0, 0, 0.25);
+  transform: translateY(-2px);
+}
+
+.reservation-poster {
+  width: 110px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+}
+
+/* Détails */
+.reservation-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reservation-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.reservation-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.reservation-status {
+  font-weight: 600;
+  color: var(--color-accent-red);
+}
+
+/* Actions */
+.reservation-actions {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.reservation-price {
+  font-size: 26px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--color-accent-gold), #f5e7b2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cancel-btn {
+  padding: 10px 18px;
+  background: var(--color-accent-red);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: #c52222;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+}
+
+.cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .reservation-card {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .reservation-poster {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 3;
+  }
+
+  .reservation-actions {
+    align-items: flex-start;
+  }
+
+  .reservations-title {
+    font-size: 28px;
+  }
+}

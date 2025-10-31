@@ -4,6 +4,8 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Home from "./pages/Home"
 import AdminDashboard from "./pages/AdminDashboard"
+import MyReservations from "./pages/MyReservations"
+import ManageFilms from "./pages/ManageFilms"
 import FilmDetails from "./pages/FilmDetails"
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -37,6 +39,8 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/film/:id" element={<FilmDetails />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/films" element={<ManageFilms />} />
+            <Route path="/mes-reservations" element={<MyReservations />} />
           </Routes>
         </main>
         <Footer />

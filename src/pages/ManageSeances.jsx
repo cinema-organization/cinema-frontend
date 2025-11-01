@@ -1,155 +1,211 @@
-"use client"
+import React, { useState, useEffect } from "react"
+import {
+  getSeances,
+  createSeance,
+  updateSeance,
+  deleteSeance,
+  getFilms,
+  getSalles
+} from "../services/api"
 
-import { useState, useEffect } from "react"
-import { getSeances, createSeance, updateSeance, deleteSeance } from "../services/api"
 import "../styles/dashboard.css"
 import AdminSidebar from "../components/AdminSidebar"
 
-function ManageSeances() {
+export default function ManageSeances() {
   const [seances, setSeances] = useState([])
+  const [filtered, setFiltered] = useState([])
+
+  const [films, setFilms] = useState([])
+  const [salles, setSalles] = useState([])
+
+  // ✅ Filtres
+  const [filterDate, setFilterDate] = useState("")
+  const [filterFilm, setFilterFilm] = useState("")
+  const [filterSalle, setFilterSalle] = useState("")
+  const [filterStatut, setFilterStatut] = useState("")
+
+  // ✅ Pagination
+  const [page, setPage] = useState(1)
+  const itemsPerPage = 7
+
+  // ✅ Modal
   const [showModal, setShowModal] = useState(false)
   const [editingSeance, setEditingSeance] = useState(null)
   const [formData, setFormData] = useState({
-    film: "",
-    salle: "",
+    film_id: "",
+    salle_id: "",
     date: "",
     heure: "",
   })
 
-  const [setTri] = useState("")
-
+  // ✅ Charger données
   useEffect(() => {
     loadSeances()
+    loadFilms()
+    loadSalles()
   }, [])
 
-  // 🧩 Charger les séances depuis l’API
   const loadSeances = async () => {
-    try {
-      const data = await getSeances()
-      if (Array.isArray(data)) setSeances(data)
-      else if (Array.isArray(data.data)) setSeances(data.data)
-      else {
-        console.error("Format de réponse inattendu:", data)
-        setSeances([])
-      }
-    } catch (error) {
-      console.error("Erreur lors du chargement des séances:", error)
-      setSeances([])
-    }
+    const data = await getSeances()
+    const list = Array.isArray(data) ? data : data.data || []
+    setSeances(list)
+    setFiltered(list)
   }
 
-  // 🧾 Soumission du formulaire (ajout/modif)
+  const loadFilms = async () => {
+    const data = await getFilms()
+    setFilms(Array.isArray(data) ? data : data.data || [])
+  }
+
+  const loadSalles = async () => {
+    const data = await getSalles()
+    setSalles(Array.isArray(data) ? data : data.data || [])
+  }
+
+  // ✅ FILTRES
+  const applyFilters = () => {
+    let res = [...seances]
+
+    if (filterDate) {
+      res = res.filter(s => s.date?.slice(0, 10) === filterDate)
+    }
+
+    if (filterFilm) {
+      res = res.filter(s =>
+        s.film_id?.titre?.toLowerCase().includes(filterFilm.toLowerCase())
+      )
+    }
+
+    if (filterSalle) {
+      res = res.filter(s =>
+        s.salle_id?.nom?.toLowerCase().includes(filterSalle.toLowerCase())
+      )
+    }
+
+    if (filterStatut) {
+      res = res.filter(s => s.statut === filterStatut)
+    }
+
+    setFiltered(res)
+    setPage(1)
+  }
+
+  const resetFilters = () => {
+    setFilterDate("")
+    setFilterFilm("")
+    setFilterSalle("")
+    setFilterStatut("")
+    setFiltered(seances)
+  }
+
+  // ✅ Modal submit
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
       if (editingSeance) {
-        await updateSeance(editingSeance._id || editingSeance.id, formData)
+        await updateSeance(editingSeance._id, formData)
       } else {
         await createSeance(formData)
       }
       setShowModal(false)
       setEditingSeance(null)
-      setFormData({
-        film: "",
-        salle: "",
-        date: "",
-        heure: "",
-      })
+      setFormData({ film_id: "", salle_id: "", date: "", heure: "" })
       loadSeances()
     } catch (error) {
-      console.error("Erreur lors de la sauvegarde:", error)
+      console.error("Erreur sauvegarde séance:", error)
     }
   }
 
-  // ✏️ Modifier une séance
-  const handleEdit = (seance) => {
-    setEditingSeance(seance)
+  const handleEdit = (s) => {
+    setEditingSeance(s)
     setFormData({
-      film: seance.film_id?.titre || seance.film || "",
-      salle: seance.salle_id?.nom || seance.salle || "",
-      date: seance.date ? seance.date.split("T")[0] : "",
-      heure: seance.heure || "",
+      film_id: s.film_id?._id,
+      salle_id: s.salle_id?._id,
+      date: s.date?.split("T")[0],
+      heure: s.heure,
     })
     setShowModal(true)
   }
 
-  // 🗑️ Supprimer une séance
   const handleDelete = async (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette séance ?")) {
-      try {
-        await deleteSeance(id)
-        loadSeances()
-      } catch (error) {
-        console.error("Erreur lors de la suppression:", error)
-      }
-    }
+    if (!window.confirm("Supprimer cette séance ?")) return
+    await deleteSeance(id)
+    loadSeances()
   }
 
-  // 🧮 Tri
-  const handleTri = (val) => {
-    setTri(val)
-    const sorted = [...seances].sort((a, b) => {
-      if (val === "film") return (a.film_id?.titre || "").localeCompare(b.film_id?.titre || "")
-      if (val === "salle") return (a.salle_id?.nom || "").localeCompare(b.salle_id?.nom || "")
-      if (val === "statut") return (a.statut || "").localeCompare(b.statut || "")
-      return 0
-    })
-    setSeances(sorted)
-  }
+  // ✅ Pagination
+  const totalPages = Math.ceil(filtered.length / itemsPerPage)
+  const start = (page - 1) * itemsPerPage
+  const currentData = filtered.slice(start, start + itemsPerPage)
 
   return (
     <div className="admin-container">
-      {/* --- SIDEBAR --- */}
+
       <AdminSidebar />
 
-      {/* --- CONTENU PRINCIPAL --- */}
       <div className="admin-content">
         <div className="admin-header">
           <h1 className="admin-title">Gestion des Séances</h1>
-          <button onClick={() => setShowModal(true)} className="btn btn-primary">
+          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
             + Ajouter une séance
           </button>
         </div>
 
-        {/* --- TRI --- */}
-        <div
-          className="tri-section"
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: "12px",
-            marginBottom: "16px",
-          }}
-        >
-          <label style={{ fontWeight: "600", color: "var(--color-text-secondary)" }}>
-            Trier par :
-          </label>
+        {/* ✅ FILTRES */}
+        <div className="filter-bar">
+
+          <input
+            type="date"
+            className="filter-input"
+            value={filterDate}
+            onChange={e => setFilterDate(e.target.value)}
+          />
+
+          <input
+            type="text"
+            className="filter-input"
+            placeholder="Film..."
+            value={filterFilm}
+            onChange={e => setFilterFilm(e.target.value)}
+          />
+
+          <input
+            type="text"
+            className="filter-input"
+            placeholder="Salle..."
+            value={filterSalle}
+            onChange={e => setFilterSalle(e.target.value)}
+          />
+
           <select
-            onChange={(e) => handleTri(e.target.value)}
-            className="form-input"
-            style={{
-              width: "180px",
-              display: "inline-block",
-              backgroundColor: "#121212",
-            }}
+            className="filter-select"
+            value={filterStatut}
+            onChange={e => setFilterStatut(e.target.value)}
           >
-            <option value="">Aucun</option>
-            <option value="film">Film</option>
-            <option value="salle">Salle</option>
-            <option value="statut">Statut</option>
+            <option value="">Statut...</option>
+            <option value="à venir">À venir</option>
+            <option value="terminée">Terminée</option>
           </select>
+
+          <button className="filter-button filter-button-primary" onClick={applyFilters}>
+            Filtrer
+          </button>
+
+          <button className="filter-button filter-button-secondary" onClick={resetFilters}>
+            Reset
+          </button>
         </div>
 
-        {/* --- TABLE --- */}
+        {/* ✅ TABLEAU */}
         <div className="card table-card">
-          {seances.length === 0 ? (
-            <p className="empty-message">Aucune séance disponible.</p>
+          {currentData.length === 0 ? (
+            <p className="empty-message">Aucune séance.</p>
           ) : (
             <div className="table-container">
               <table className="data-table">
                 <thead>
                   <tr>
+                    <th>Affiche</th>
                     <th>Film</th>
                     <th>Salle</th>
                     <th>Date</th>
@@ -158,45 +214,49 @@ function ManageSeances() {
                     <th>Actions</th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  {seances.map((s) => (
+                  {currentData.map((s) => (
                     <tr key={s._id}>
-                      <td>{s.film_id?.titre || "—"}</td>
-                      <td>{s.salle_id?.nom || "—"}</td>
+
+                      {/* ✅ Affiche du film */}
+                      <td>
+                        <img
+                          src={s.film_id?.affiche || "/placeholder.svg"}
+                          alt={s.film_id?.titre}
+                          className="mini-affiche"
+                        />
+                      </td>
+
+                      <td>{s.film_id?.titre}</td>
+                      <td>{s.salle_id?.nom}</td>
                       <td>{new Date(s.date).toLocaleDateString()}</td>
                       <td>{s.heure}</td>
+
                       <td>
                         <span
-                          style={{
-                            color: s.statut === "terminée" ? "gray" : "limegreen",
-                            fontWeight: "bold",
-                          }}
+                          className={
+                            s.statut === "à venir"
+                              ? "status-badge status-confirmee"
+                              : "status-badge status-annulee"
+                          }
                         >
-                          {s.statut || "—"}
+                          {s.statut}
                         </span>
                       </td>
+
                       <td>
-                        <div style={{ display: "flex", gap: "8px" }}>
-                          <button
-                            onClick={() => handleEdit(s)}
-                            className="btn btn-secondary"
-                            style={{ padding: "6px 14px" }}
-                          >
+                        <div className="table-actions-cell">
+                          <button className="btn btn-secondary" onClick={() => handleEdit(s)}>
                             Modifier
                           </button>
-                          <button
-                            onClick={() => handleDelete(s._id || s.id)}
-                            className="btn"
-                            style={{
-                              padding: "6px 14px",
-                              background: "var(--color-error)",
-                              color: "white",
-                            }}
-                          >
+
+                          <button className="btn delete-button" onClick={() => handleDelete(s._id)}>
                             Supprimer
                           </button>
                         </div>
                       </td>
+
                     </tr>
                   ))}
                 </tbody>
@@ -205,34 +265,69 @@ function ManageSeances() {
           )}
         </div>
 
-        {/* --- MODAL --- */}
+        {/* ✅ PAGINATION */}
+        {totalPages > 1 && (
+          <div className="pagination-container">
+            <button
+              className="pagination-button"
+              disabled={page === 1}
+              onClick={() => setPage(p => p - 1)}
+            >
+              ◀
+            </button>
+
+            <span className="pagination-info">Page {page} / {totalPages}</span>
+
+            <button
+              className="pagination-button"
+              disabled={page === totalPages}
+              onClick={() => setPage(p => p + 1)}
+            >
+              ▶
+            </button>
+          </div>
+        )}
+
+        {/* ✅ MODAL */}
         {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h2 style={{ marginBottom: "24px" }}>
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
+              <h2 className="modal-title">
                 {editingSeance ? "Modifier la séance" : "Ajouter une séance"}
               </h2>
+
               <form onSubmit={handleSubmit}>
+
+                {/* ✅ Dropdown films */}
                 <div className="form-group">
                   <label className="form-label">Film</label>
-                  <input
-                    type="text"
+                  <select
                     className="form-input"
-                    value={formData.film}
-                    onChange={(e) => setFormData({ ...formData, film: e.target.value })}
+                    value={formData.film_id}
+                    onChange={(e) => setFormData({ ...formData, film_id: e.target.value })}
                     required
-                  />
+                  >
+                    <option value="">-- Choisir un film --</option>
+                    {films.map((f) => (
+                      <option key={f._id} value={f._id}>{f.titre}</option>
+                    ))}
+                  </select>
                 </div>
 
+                {/* ✅ Dropdown salles */}
                 <div className="form-group">
                   <label className="form-label">Salle</label>
-                  <input
-                    type="text"
+                  <select
                     className="form-input"
-                    value={formData.salle}
-                    onChange={(e) => setFormData({ ...formData, salle: e.target.value })}
+                    value={formData.salle_id}
+                    onChange={(e) => setFormData({ ...formData, salle_id: e.target.value })}
                     required
-                  />
+                  >
+                    <option value="">-- Choisir une salle --</option>
+                    {salles.map((s) => (
+                      <option key={s._id} value={s._id}>{s.nom}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="form-group">
@@ -258,24 +353,22 @@ function ManageSeances() {
                 </div>
 
                 <div className="form-actions">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="btn btn-secondary"
-                  >
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
                     Annuler
                   </button>
+
                   <button type="submit" className="btn btn-primary">
                     {editingSeance ? "Mettre à jour" : "Ajouter"}
                   </button>
                 </div>
+
               </form>
+
             </div>
           </div>
         )}
+
       </div>
     </div>
   )
 }
-
-export default ManageSeances

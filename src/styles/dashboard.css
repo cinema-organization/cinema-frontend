@@ -532,6 +532,125 @@
   border-radius: 4px;
 }
 
+/* ---------------------------------------------
+   ✅ AJUSTEMENTS SPÉCIAUX POUR ManageSalles 
+   (amélioration du layout, espacements, alignements)
+----------------------------------------------*/
+
+/* ✅ Séparation nette entre le header et sections */
+.admin-header {
+  margin-bottom: 28px !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ------------------------------------------
+   ✅ STYLE UNIFORME POUR TOUTES LES TRI-SECTIONS
+-------------------------------------------*/
+.tri-section {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px 18px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+/* Label du tri */
+.tri-section label {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+}
+
+/* Champ select du tri */
+.tri-section select {
+  width: 180px;
+  padding: 8px 10px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+/* Effet hover */
+.tri-section select:hover {
+  border-color: var(--color-accent-red);
+  box-shadow: 0 0 5px rgba(220, 38, 38, 0.4);
+}
+
+/* ✅ Conteneur du tableau mieux espacé */
+.table-card {
+  margin-top: 10px;
+  padding: 12px 0;
+}
+
+/* ✅ Espacement vertical entre boutons dans tableau */
+.table-actions-cell .btn,
+.table-actions-cell .delete-button {
+  padding: 6px 14px;
+  height: 36px;
+  font-size: 14px;
+  border-radius: var(--radius-md);
+}
+
+/* ✅ Meilleure lisibilité du tableau */
+.data-table td, 
+.data-table th {
+  padding: 16px 20px !important;
+}
+
+.data-table tbody tr {
+  height: 64px;
+}
+
+/* ✅ Contenu du tableau non collé aux bords */
+.table-container {
+  padding: 8px 0;
+}
+
+/* ✅ Pagination plus espacée */
+.pagination-container {
+  margin-top: 28px !important;
+  padding-bottom: 10px;
+}
+
+/* ✅ Modal plus espacé et centré */
+.modal-content {
+  padding: 36px !important;
+  gap: 14px;
+}
+
+.modal-title {
+  font-size: 22px;
+  margin-bottom: 20px !important;
+}
+
+/* ✅ Espacement dans chaque champ du form */
+.form-group {
+  margin-bottom: 16px !important;
+}
+
+.form-actions {
+  margin-top: 22px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* ✅ Boutons du modal alignés */
+.form-actions .btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+}
+
+
 
 @media (max-width: 1024px) {
   .stats-grid {

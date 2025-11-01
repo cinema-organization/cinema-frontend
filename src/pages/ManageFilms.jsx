@@ -22,23 +22,20 @@ function ManageFilms() {
     loadFilms()
   }, [])
 
-  // 🧩 Charger les films depuis l’API
+  // ✅ Charger les films depuis l’API
   const loadFilms = async () => {
     try {
       const data = await getFilms()
       if (Array.isArray(data)) setFilms(data)
       else if (Array.isArray(data.data)) setFilms(data.data)
-      else {
-        console.error("Format de réponse inattendu:", data)
-        setFilms([])
-      }
+      else setFilms([])
     } catch (error) {
-      console.error("Erreur lors du chargement des films:", error)
+      console.error("Erreur chargement films:", error)
       setFilms([])
     }
   }
 
-  // 🧾 Soumission du formulaire (ajout/modif)
+  // ✅ Soumission formulaire
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
@@ -47,6 +44,7 @@ function ManageFilms() {
       } else {
         await createFilm(formData)
       }
+
       setShowModal(false)
       setEditingFilm(null)
       setFormData({
@@ -56,13 +54,14 @@ function ManageFilms() {
         description: "",
         affiche: "",
       })
+
       loadFilms()
     } catch (error) {
-      console.error("Erreur lors de la sauvegarde:", error)
+      console.error("Erreur sauvegarde film:", error)
     }
   }
 
-  // ✏️ Modifier un film
+  // ✅ Modifier un film
   const handleEdit = (film) => {
     setEditingFilm(film)
     setFormData({
@@ -75,47 +74,38 @@ function ManageFilms() {
     setShowModal(true)
   }
 
-  // 🗑️ Supprimer un film
+  // ✅ Supprimer un film
   const handleDelete = async (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce film ?")) {
-      try {
-        await deleteFilm(id)
-        loadFilms()
-      } catch (error) {
-        console.error("Erreur lors de la suppression:", error)
-      }
+    if (!window.confirm("Voulez-vous vraiment supprimer ce film ?")) return
+
+    try {
+      await deleteFilm(id)
+      loadFilms()
+    } catch (error) {
+      console.error("Erreur suppression film:", error)
     }
   }
 
   return (
     <div className="admin-container">
-      {/* --- SIDEBAR --- */}
       <AdminSidebar />
 
-      {/* --- CONTENU PRINCIPAL --- */}
       <div className="admin-content">
+        
+        {/* HEADER */}
         <div className="admin-header">
-          <h1 className="admin-title"> Gestion des Films</h1>
+          <h1 className="admin-title">Gestion des Films</h1>
           <button onClick={() => setShowModal(true)} className="btn btn-primary">
             + Ajouter un film
           </button>
         </div>
 
-        {/* --- TRI --- */}
-        <div
-          className="tri-section"
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: "12px",
-            marginBottom: "16px",
-          }}
-        >
-          <label style={{ fontWeight: "600", color: "var(--color-text-secondary)" }}>
-            Trier par :
-          </label>
+        {/* ✅ TRI (PROPRE, UNIFORME) */}
+        <div className="tri-section">
+          <label>Trier par :</label>
+
           <select
+            className="form-input"
             onChange={(e) => {
               const tri = e.target.value
               const sorted = [...films].sort((a, b) => {
@@ -125,12 +115,6 @@ function ManageFilms() {
               })
               setFilms(sorted)
             }}
-            className="form-input"
-            style={{
-              width: "180px",
-              display: "inline-block",
-              backgroundColor: "#121212",
-            }}
           >
             <option value="">Aucun</option>
             <option value="titre">Titre</option>
@@ -138,10 +122,10 @@ function ManageFilms() {
           </select>
         </div>
 
-        {/* --- TABLE --- */}
+        {/* ✅ TABLEAU */}
         <div className="card table-card">
           {films.length === 0 ? (
-            <p className="empty-message">Aucun film disponible.</p>
+            <p className="empty-message">Aucun film trouvé.</p>
           ) : (
             <div className="table-container">
               <table className="data-table">
@@ -155,6 +139,7 @@ function ManageFilms() {
                     <th>Actions</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {films.map((film) => (
                     <tr key={film._id || film.id}>
@@ -162,35 +147,27 @@ function ManageFilms() {
                         <img
                           src={film.affiche || "/placeholder.svg"}
                           alt={film.titre}
-                          style={{
-                            width: "50px",
-                            height: "75px",
-                            objectFit: "cover",
-                            borderRadius: "4px",
-                          }}
+                          className="mini-affiche"
                         />
                       </td>
+
                       <td>{film.titre}</td>
                       <td>{film.genre}</td>
                       <td>{film.duree} min</td>
                       <td>{film.description?.slice(0, 50)}...</td>
+
                       <td>
-                        <div style={{ display: "flex", gap: "8px" }}>
+                        <div className="table-actions-cell">
                           <button
                             onClick={() => handleEdit(film)}
                             className="btn btn-secondary"
-                            style={{ padding: "6px 14px" }}
                           >
                             Modifier
                           </button>
+
                           <button
                             onClick={() => handleDelete(film._id || film.id)}
-                            className="btn"
-                            style={{
-                              padding: "6px 14px",
-                              background: "var(--color-error)",
-                              color: "white",
-                            }}
+                            className="delete-button"
                           >
                             Supprimer
                           </button>
@@ -199,35 +176,40 @@ function ManageFilms() {
                     </tr>
                   ))}
                 </tbody>
+
               </table>
             </div>
           )}
         </div>
 
-        {/* --- MODAL --- */}
+        {/* ✅ MODAL */}
         {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h2 style={{ marginBottom: "24px" }}>
+
+              <h2 className="modal-title">
                 {editingFilm ? "Modifier le film" : "Ajouter un film"}
               </h2>
+
               <form onSubmit={handleSubmit}>
+                {/* Champs du formulaire */}
                 {[
                   { key: "titre", label: "Titre" },
                   { key: "genre", label: "Genre" },
-                  { key: "duree", label: "Durée (en minutes)" },
+                  { key: "duree", label: "Durée (minutes)" },
                   { key: "description", label: "Description" },
                   { key: "affiche", label: "URL de l'affiche" },
                 ].map((field) => (
                   <div key={field.key} className="form-group">
                     <label className="form-label">{field.label}</label>
+
                     {field.key === "description" ? (
                       <textarea
                         className="form-input"
                         rows="3"
-                        value={formData[field.key]}
+                        value={formData.description}
                         onChange={(e) =>
-                          setFormData({ ...formData, [field.key]: e.target.value })
+                          setFormData({ ...formData, description: e.target.value })
                         }
                         required
                       />
@@ -240,7 +222,7 @@ function ManageFilms() {
                         }
                         required
                       >
-                        <option value="">-- Sélectionner un genre --</option>
+                        <option value="">-- Choisir un genre --</option>
                         {[
                           "Action",
                           "Comédie",
@@ -251,9 +233,7 @@ function ManageFilms() {
                           "Romance",
                           "Animation",
                         ].map((g) => (
-                          <option key={g} value={g}>
-                            {g}
-                          </option>
+                          <option key={g} value={g}>{g}</option>
                         ))}
                       </select>
                     ) : (
@@ -271,21 +251,21 @@ function ManageFilms() {
                 ))}
 
                 <div className="form-actions">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="btn btn-secondary"
-                  >
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
                     Annuler
                   </button>
+
                   <button type="submit" className="btn btn-primary">
-                    {editingFilm ? "Mettre à jour" : "Ajouter"}
+                    {editingFilm ? "Sauvegarder" : "Ajouter"}
                   </button>
                 </div>
+
               </form>
+
             </div>
           </div>
         )}
+
       </div>
     </div>
   )

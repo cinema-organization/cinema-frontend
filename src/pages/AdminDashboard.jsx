@@ -1,133 +1,186 @@
-import { useState, useEffect } from "react";
-import { Link} from "react-router-dom";
-import { getStats, getAllReservations } from "../services/api";
-import "../styles/dashboard.css";
+import { useState, useEffect } from "react"
+import { Line } from "react-chartjs-2"
+import {
+  Chart as ChartJS,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend,
+} from "chart.js"
+
+import { getStats, getAllReservations } from "../services/api"
+import "../styles/dashboard.css"
 import AdminSidebar from "../components/AdminSidebar"
 
-function AdminDashboard() {
-const [stats, setStats] = useState({
-  totalFilms: 0,
-  totalSalles: 0,
-  totalSeancesAvenir: 0,
-  totalReservations: 0,
-  totalUsers: 0,
-  totalRevenue: 0,
-});
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend)
 
+export default function AdminDashboard() {
+  const [stats, setStats] = useState({
+    totalFilms: 0,
+    totalSalles: 0,
+    totalSeancesAvenir: 0,
+    totalReservations: 0,
+    totalUsers: 0,
+  })
 
-  const [reservations, setReservations] = useState([]); // ✅ Nouveau
-  const [loading, setLoading] = useState(true);
-  
+  const [reservations, setReservations] = useState([])
+  const [filteredReservations, setFilteredReservations] = useState([])
 
-  // Charger stats + réservations
+  const [loading, setLoading] = useState(true)
+  const [filterRange, setFilterRange] = useState("today") // today | week | month
+
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    loadDashboardData()
+  }, [])
+
+  useEffect(() => {
+    applyFilter()
+  }, [reservations, filterRange])
 
   const loadDashboardData = async () => {
     try {
-      setLoading(true);
-
       const [statsRes, reservationsRes] = await Promise.all([
         getStats(),
         getAllReservations(),
-      ]);
+      ])
 
-if (statsRes.success) {
-  const data = statsRes.data;
-  setStats({
-    totalFilms: data.totalFilms || 0,
-    totalSalles: data.totalSalles || 0,
-    totalSeancesAvenir: data.totalSeancesAvenir || 0,
-    totalReservations: data.totalReservations || 0,
-    totalUsers: data.totalUsers || 0,
-    totalRevenue: data.totalRevenue || 0,
-  });
-}
-
+      if (statsRes.success) {
+        const data = statsRes.data
+        setStats({
+          totalFilms: data.totalFilms || 0,
+          totalSalles: data.totalSalles || 0,
+          totalSeancesAvenir: data.totalSeancesAvenir || 0,
+          totalReservations: data.totalReservations || 0,
+          totalUsers: data.totalUsers || 0,
+        })
+      }
 
       if (reservationsRes.success) {
-        setReservations(reservationsRes.data); // ✅ On stocke la vraie liste
-      } else {
-        console.error("Erreur chargement réservations:", reservationsRes.message);
+        setReservations(reservationsRes.data)
       }
-    } catch (err) {
-      console.error("Erreur lors du chargement du dashboard:", err);
+    } catch (error) {
+      console.error(error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
-
-  if (loading) {
-    return <p style={{ textAlign: "center" }}>Chargement...</p>;
   }
+
+  // ✅ Filtres des réservations (aujourd’hui / semaine / mois)
+  const applyFilter = () => {
+    const now = new Date()
+
+    let filtered = reservations
+
+    if (filterRange === "today") {
+      filtered = reservations.filter((r) =>
+        r.createdAt?.slice(0, 10) === now.toISOString().slice(0, 10)
+      )
+    }
+
+    if (filterRange === "week") {
+      const weekAgo = new Date()
+      weekAgo.setDate(now.getDate() - 7)
+
+      filtered = reservations.filter((r) => new Date(r.createdAt) >= weekAgo)
+    }
+
+    if (filterRange === "month") {
+      const monthAgo = new Date()
+      monthAgo.setDate(now.getDate() - 30)
+
+      filtered = reservations.filter((r) => new Date(r.createdAt) >= monthAgo)
+    }
+
+    setFilteredReservations(filtered)
+  }
+
+  // ✅ Génération des données pour Chart.js
+  const chartData = (() => {
+    const counts = {}
+
+    filteredReservations.forEach((res) => {
+      const day = res.createdAt.slice(0, 10)
+      counts[day] = (counts[day] || 0) + 1
+    })
+
+    const labels = Object.keys(counts).sort()
+    const values = Object.values(counts)
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Réservations",
+          data: values,
+          borderColor: "#dc2626",
+          backgroundColor: "rgba(220,38,38,0.3)",
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: "#fbbf24",
+          tension: 0.3,
+        },
+      ],
+    }
+  })()
+
+  if (loading) return <p style={{ textAlign: "center" }}>Chargement...</p>
 
   return (
     <div className="admin-container">
-      {/* 🌑 Sidebar */}
       <AdminSidebar />
-      
 
-      {/* 📊 Contenu principal */}
       <div className="admin-content">
         <h1 className="admin-title">Dashboard</h1>
 
-        {/* Statistiques */}
-<div className="stats-grid">
-  <div className="stat-card">
-    <div className="stat-icon" style={{ background: "rgba(220,38,38,0.2)" }}>
-      🎬
-    </div>
-    <div className="stat-content">
-      <div className="stat-label">Total Films</div>
-      <div className="stat-value">{stats.totalFilms}</div>
-    </div>
-  </div>
+        {/* ✅ STATISTIQUES */}
+        <div className="stats-grid">
+          {[
+            { label: "Total Films", value: stats.totalFilms, icon: "🎬" },
+            { label: "Salles", value: stats.totalSalles, icon: "🏛️" },
+            { label: "Séances à venir", value: stats.totalSeancesAvenir, icon: "🎞️" },
+            { label: "Réservations", value: stats.totalReservations, icon: "🎫" },
+            { label: "Utilisateurs", value: stats.totalUsers, icon: "👥" },
+          ].map((s, i) => (
+            <div key={i} className="stat-card">
+              <div className="stat-icon">{s.icon}</div>
+              <div className="stat-content">
+                <div className="stat-label">{s.label}</div>
+                <div className="stat-value">{s.value}</div>
+              </div>
+            </div>
+          ))}
+        </div>
 
-  <div className="stat-card">
-    <div className="stat-icon" style={{ background: "rgba(234,179,8,0.2)" }}>
-      🏛️
-    </div>
-    <div className="stat-content">
-      <div className="stat-label">Salles</div>
-      <div className="stat-value">{stats.totalSalles}</div>
-    </div>
-  </div>
+        {/* ✅ GRAPHIQUE */}
+        <div className="card chart-card">
+          <div className="chart-header">
+            <h2 className="chart-title">Réservations par jour</h2>
 
-  <div className="stat-card">
-    <div className="stat-icon" style={{ background: "rgba(147,51,234,0.2)" }}>
-      🎞️
-    </div>
-    <div className="stat-content">
-      <div className="stat-label">Séances à venir</div>
-      <div className="stat-value">{stats.totalSeancesAvenir}</div>
-    </div>
-  </div>
+            {/* ✅ Filtres */}
+            <div style={{ display: "flex", gap: 12 }}>
+              {["today", "week", "month"].map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setFilterRange(f)}
+                  className={`filter-button ${
+                    filterRange === f ? "filter-button-primary" : "filter-button-secondary"
+                  }`}
+                >
+                  {f === "today" ? "Aujourd’hui" : f === "week" ? "7 jours" : "30 jours"}
+                </button>
+              ))}
+            </div>
+          </div>
 
-  <div className="stat-card">
-    <div className="stat-icon" style={{ background: "rgba(251,191,36,0.2)" }}>
-      🎫
-    </div>
-    <div className="stat-content">
-      <div className="stat-label">Réservations</div>
-      <div className="stat-value">{stats.totalReservations}</div>
-    </div>
-  </div>
+          <Line data={chartData} height={100} />
+        </div>
 
-  <div className="stat-card">
-    <div className="stat-icon" style={{ background: "rgba(59,130,246,0.2)" }}>
-      👥
-    </div>
-    <div className="stat-content">
-      <div className="stat-label">Utilisateurs</div>
-      <div className="stat-value">{stats.totalUsers}</div>
-    </div>
-  </div>
-</div>
+        {/* ✅ RÉSERVATIONS LISTE */}
+        <div className="card table-card" style={{ marginTop: 32 }}>
+          <h2>Réservations du jour</h2>
 
-        {/* 🔽 Réservations récentes */}
-        <div className="card" style={{ marginTop: "32px" }}>
-          <h2 style={{ marginBottom: "24px" }}>Réservations récentes</h2>
           <div className="table-container">
             <table className="data-table">
               <thead>
@@ -141,25 +194,25 @@ if (statsRes.success) {
                   <th>Statut</th>
                 </tr>
               </thead>
+
               <tbody>
-                {reservations.length > 0 ? (
-                  reservations.map((res) => (
+                {filteredReservations.length > 0 ? (
+                  filteredReservations.map((res) => (
                     <tr key={res._id}>
                       <td>{res._id.slice(-5)}</td>
-                      <td>{res.seance_id?.film_id?.titre || "Inconnu"}</td>
-                      <td>{res.user_id?.nom || "Inconnu"}</td>
-                      <td>
-                        {new Date(res.seance_id?.date).toLocaleDateString("fr-FR")}
-                      </td>
+                      <td>{res.seance_id?.film_id?.titre}</td>
+                      <td>{res.user_id?.nom}</td>
+                      <td>{new Date(res.seance_id?.date).toLocaleDateString("fr-FR")}</td>
                       <td>{res.seance_id?.heure}</td>
                       <td>{res.nombrePlaces}</td>
+
                       <td>
                         <span
-                          className={`badge ${
+                          className={
                             res.statut === "confirmée"
-                              ? "badge-success"
-                              : "badge-danger"
-                          }`}
+                              ? "status-badge status-confirmee"
+                              : "status-badge status-annulee"
+                          }
                         >
                           {res.statut}
                         </span>
@@ -168,8 +221,8 @@ if (statsRes.success) {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" style={{ textAlign: "center", color: "#aaa" }}>
-                      Aucune réservation trouvée
+                    <td colSpan="7" style={{ textAlign: "center", color: "#888" }}>
+                      Aucune réservation trouvée pour cette période.
                     </td>
                   </tr>
                 )}
@@ -179,7 +232,5 @@ if (statsRes.success) {
         </div>
       </div>
     </div>
-  );
+  )
 }
-
-export default AdminDashboard;

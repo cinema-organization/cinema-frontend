@@ -1,25 +1,63 @@
 import React, { useState, useEffect } from "react"
-import { getSalles, createSalle, updateSalle, deleteSalle } from "../services/api"
+import { 
+  getSalles, 
+  createSalle, 
+  updateSalle, 
+  deleteSalle, 
+  getSeances 
+} from "../services/api"
+
 import "../styles/dashboard.css"
 import AdminSidebar from "../components/AdminSidebar"
 
 export default function ManageSalles() {
+
   const [salles, setSalles] = useState([])
+  const [seances, setSeances] = useState([])
+
   const [showModal, setShowModal] = useState(false)
   const [editingSalle, setEditingSalle] = useState(null)
+
   const [formData, setFormData] = useState({ nom: "", capacite: "" })
+  const [tri, setTri] = useState("")
+
+  // ✅ Pagination
+  const [page, setPage] = useState(1)
+  const itemsPerPage = 7
 
   useEffect(() => {
     loadSalles()
+    loadSeances()
   }, [])
 
   const loadSalles = async () => {
     try {
-      const data = await getSalles()
-      setSalles(Array.isArray(data) ? data : data.data || [])
+      const res = await getSalles()
+      setSalles(Array.isArray(res) ? res : res.data || [])
     } catch (error) {
       console.error("Erreur lors du chargement des salles:", error)
     }
+  }
+
+  const loadSeances = async () => {
+    try {
+      const res = await getSeances()
+      setSeances(Array.isArray(res) ? res : res.data || [])
+    } catch (error) {
+      console.error("Erreur chargement séances:", error)
+    }
+  }
+
+  const openAddModal = () => {
+    setEditingSalle(null)
+    setFormData({ nom: "", capacite: "" })
+    setShowModal(true)
+  }
+
+  const closeModal = () => {
+    setShowModal(false)
+    setEditingSalle(null)
+    setFormData({ nom: "", capacite: "" })
   }
 
   const handleSubmit = async (e) => {
@@ -30,12 +68,10 @@ export default function ManageSalles() {
       } else {
         await createSalle(formData)
       }
-      setShowModal(false)
-      setEditingSalle(null)
-      setFormData({ nom: "", capacite: "" })
+      closeModal()
       loadSalles()
     } catch (error) {
-      console.error("Erreur lors de la sauvegarde de la salle:", error)
+      console.error("Erreur:", error)
     }
   }
 
@@ -45,53 +81,60 @@ export default function ManageSalles() {
     setShowModal(true)
   }
 
+  // ✅ Empêcher suppression si salle utilisée
   const handleDelete = async (id) => {
-    if (window.confirm("Supprimer cette salle ?")) {
-      try {
-        await deleteSalle(id)
-        loadSalles()
-      } catch (error) {
-        console.error("Erreur lors de la suppression:", error)
-      }
+    const liee = seances.some(s => s.salle_id?._id === id)
+    if (liee) {
+      alert("❌ Impossible : salle utilisée dans une séance.")
+      return
+    }
+
+    if (!window.confirm("Supprimer cette salle ?")) return
+
+    try {
+      await deleteSalle(id)
+      loadSalles()
+    } catch (error) {
+      console.error(error)
     }
   }
+
+  // ✅ Tri
+  const appliquerTri = (type) => {
+    setTri(type)
+    let sorted = [...salles]
+
+    if (type === "nom") sorted.sort((a, b) => a.nom.localeCompare(b.nom))
+    if (type === "capacite") sorted.sort((a, b) => a.capacite - b.capacite)
+
+    setSalles(sorted)
+  }
+
+  // ✅ Pagination
+  const totalPages = Math.ceil(salles.length / itemsPerPage)
+  const start = (page - 1) * itemsPerPage
+  const currentData = salles.slice(start, start + itemsPerPage)
 
   return (
     <div className="admin-container">
       <AdminSidebar />
+
       <div className="admin-content">
+
         <div className="admin-header">
           <h1 className="admin-title">Gestion des Salles</h1>
-          <button onClick={() => setShowModal(true)} className="btn btn-primary">
-            + Ajouter une Salle
+          <button className="btn btn-primary" onClick={openAddModal}>
+            + Ajouter une salle
           </button>
         </div>
 
-        <div
-          className="tri-section"
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: "12px",
-            marginBottom: "16px",
-          }}
-        >
-          <label style={{ fontWeight: "600", color: "var(--color-text-secondary)" }}>
-            Trier par :
-          </label>
+        {/* ✅ Section TRI */}
+        <div className="tri-section">
+          <label>Trier par :</label>
           <select
-            onChange={(e) => {
-              const tri = e.target.value
-              const sorted = [...salles].sort((a, b) => {
-                if (tri === "nom") return a.nom.localeCompare(b.nom)
-                if (tri === "capacite") return a.capacite - b.capacite
-                return 0
-              })
-              setSalles(sorted)
-            }}
             className="form-input"
-            style={{ width: "180px", backgroundColor: "#121212" }}
+            value={tri}
+            onChange={(e) => appliquerTri(e.target.value)}
           >
             <option value="">Aucun</option>
             <option value="nom">Nom</option>
@@ -99,8 +142,9 @@ export default function ManageSalles() {
           </select>
         </div>
 
+        {/* ✅ Tableau */}
         <div className="card table-card">
-          {salles.length === 0 ? (
+          {currentData.length === 0 ? (
             <p className="empty-message">Aucune salle disponible.</p>
           ) : (
             <div className="table-container">
@@ -112,29 +156,20 @@ export default function ManageSalles() {
                     <th>Actions</th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  {salles.map((salle) => (
+                  {currentData.map((salle) => (
                     <tr key={salle._id}>
                       <td>{salle.nom}</td>
                       <td>{salle.capacite}</td>
+
                       <td>
-                        <div style={{ display: "flex", gap: "8px" }}>
-                          <button
-                            onClick={() => handleEdit(salle)}
-                            className="btn btn-secondary"
-                            style={{ padding: "6px 14px" }}
-                          >
+                        <div className="table-actions-cell">
+                          <button className="btn btn-secondary" onClick={() => handleEdit(salle)}>
                             Modifier
                           </button>
-                          <button
-                            onClick={() => handleDelete(salle._id)}
-                            className="btn"
-                            style={{
-                              padding: "6px 14px",
-                              background: "var(--color-error)",
-                              color: "white",
-                            }}
-                          >
+
+                          <button className="delete-button" onClick={() => handleDelete(salle._id)}>
                             Supprimer
                           </button>
                         </div>
@@ -142,59 +177,87 @@ export default function ManageSalles() {
                     </tr>
                   ))}
                 </tbody>
+
               </table>
             </div>
           )}
         </div>
 
+        {/* ✅ Pagination */}
+        {totalPages > 1 && (
+          <div className="pagination-container">
+            <button
+              className="pagination-button"
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+            >
+              ◀
+            </button>
+
+            <span className="pagination-info">
+              Page {page} / {totalPages}
+            </span>
+
+            <button
+              className="pagination-button"
+              disabled={page === totalPages}
+              onClick={() => setPage(page + 1)}
+            >
+              ▶
+            </button>
+          </div>
+        )}
+
+        {/* ✅ Modal */}
         {showModal && (
-          <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-overlay" onClick={closeModal}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h2 style={{ marginBottom: "24px" }}>
+
+              <h2 className="modal-title">
                 {editingSalle ? "Modifier la salle" : "Ajouter une salle"}
               </h2>
+
               <form onSubmit={handleSubmit}>
+
                 <div className="form-group">
                   <label className="form-label">Nom</label>
                   <input
                     type="text"
                     className="form-input"
                     value={formData.nom}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nom: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
                     required
                   />
                 </div>
+
                 <div className="form-group">
                   <label className="form-label">Capacité</label>
                   <input
                     type="number"
                     className="form-input"
+                    min="1"
                     value={formData.capacite}
-                    onChange={(e) =>
-                      setFormData({ ...formData, capacite: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, capacite: e.target.value })}
                     required
                   />
                 </div>
 
                 <div className="form-actions">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="btn btn-secondary"
-                  >
+                  <button type="button" className="btn btn-secondary" onClick={closeModal}>
                     Annuler
                   </button>
+
                   <button type="submit" className="btn btn-primary">
                     {editingSalle ? "Mettre à jour" : "Ajouter"}
                   </button>
                 </div>
+
               </form>
+
             </div>
           </div>
         )}
+
       </div>
     </div>
   )

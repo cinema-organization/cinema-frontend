@@ -212,12 +212,12 @@ export const cancelReservation = async (id) => {
   }
 };
 
-export const updateReservationStatus = async (id, statut) => {
+export const deleteReservation = async (id) => {
   try {
-    const response = await api.put(`/reservations/${id}/status`, { statut });
+    const response = await api.delete(`/reservations/${id}`);
     return handleResponse(response);
   } catch (error) {
-    return { success: false, message: error.response?.data?.message || "Erreur lors de la mise à jour du statut" };
+    return { success: false, message: error.response?.data?.message || "Erreur lors de la suppression" };
   }
 };
 

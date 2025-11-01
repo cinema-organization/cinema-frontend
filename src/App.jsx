@@ -4,7 +4,12 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Home from "./pages/Home"
 import AdminDashboard from "./pages/AdminDashboard"
+import MyReservations from "./pages/MyReservations"
+import ManageFilms from "./pages/ManageFilms"
 import FilmDetails from "./pages/FilmDetails"
+import ManageSalles from "./pages/ManageSalles";
+import ManageSeances from "./pages/ManageSeances";
+import ManageReservations from "./pages/AllReservations";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { updateSeancesStatus } from "./services/api";
@@ -37,6 +42,11 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/film/:id" element={<FilmDetails />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/films" element={<ManageFilms />} />
+            <Route path="/mes-reservations" element={<MyReservations />} />
+            <Route path="/admin/salles" element={<ManageSalles />} />
+            <Route path="/admin/seances" element={<ManageSeances />} />
+            <Route path="/admin/reservations" element={<ManageReservations />} />
           </Routes>
         </main>
         <Footer />

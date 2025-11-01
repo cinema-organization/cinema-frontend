@@ -1,3 +1,37 @@
+:root {
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #1a1a1a;
+  --color-bg-card: #252525;
+  --color-bg-hover: #2d2d2d;
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a0a0a0;
+  --color-text-muted: #666666;
+
+  --color-accent-red: #dc2626;
+  --color-accent-gold: #fbbf24;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
+  --color-border: #333333;
+  --color-border-light: #404040;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+}
+
 .dashboard {
   padding: 40px 0;
 }
@@ -291,7 +325,7 @@
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 32px;
-  background: linear-gradient(135deg, var(--color-text-primary) 0%, var(--color-accent-gold) 100%);
+  background: linear-gradient(179deg, var(--color-accent-red) 0%, var(--color-accent-gold) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -356,6 +390,268 @@
   box-shadow: var(--shadow-xl);
 }
 
+/* Styles pour Manage Reservations (Filtres, Pagination, Badges) */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+.filter-input, .filter-select {
+  width: 160px;
+  padding: 8px 10px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  height: 36px;
+  transition: border-color var(--transition-fast);
+}
+
+.filter-input:focus, .filter-select:focus {
+  outline: none;
+  border-color: var(--color-accent-red);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+}
+
+.filter-button {
+  padding: 6px 12px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.filter-button-primary {
+  background: var(--color-accent-red);
+  color: var(--color-text-primary);
+}
+
+.filter-button-primary:hover {
+  background: var(--color-error-hover);
+  transform: scale(1.02);
+}
+
+.filter-button-secondary {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.filter-button-secondary:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-accent-red);
+}
+
+.empty-message {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 40px;
+  font-style: italic;
+}
+
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.pagination-button {
+  padding: 6px 12px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pagination-button:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-accent-red);
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.status-confirmee {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--color-success);
+}
+
+.status-annulee {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--color-error);
+}
+
+.delete-button {
+  background: var(--color-error);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all var(--transition-fast);
+}
+
+.delete-button:hover {
+  background: var(--color-error-hover);
+  transform: scale(1.02);
+}
+
+.mini-affiche {
+  width: 45px;
+  height: 65px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* ---------------------------------------------
+   ✅ AJUSTEMENTS SPÉCIAUX POUR ManageSalles 
+   (amélioration du layout, espacements, alignements)
+----------------------------------------------*/
+
+/* ✅ Séparation nette entre le header et sections */
+.admin-header {
+  margin-bottom: 28px !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ------------------------------------------
+   ✅ STYLE UNIFORME POUR TOUTES LES TRI-SECTIONS
+-------------------------------------------*/
+.tri-section {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px 18px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+/* Label du tri */
+.tri-section label {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+}
+
+/* Champ select du tri */
+.tri-section select {
+  width: 180px;
+  padding: 8px 10px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+/* Effet hover */
+.tri-section select:hover {
+  border-color: var(--color-accent-red);
+  box-shadow: 0 0 5px rgba(220, 38, 38, 0.4);
+}
+
+/* ✅ Conteneur du tableau mieux espacé */
+.table-card {
+  margin-top: 10px;
+  padding: 12px 0;
+}
+
+/* ✅ Espacement vertical entre boutons dans tableau */
+.table-actions-cell .btn,
+.table-actions-cell .delete-button {
+  padding: 6px 14px;
+  height: 36px;
+  font-size: 14px;
+  border-radius: var(--radius-md);
+}
+
+/* ✅ Meilleure lisibilité du tableau */
+.data-table td, 
+.data-table th {
+  padding: 16px 20px !important;
+}
+
+.data-table tbody tr {
+  height: 64px;
+}
+
+/* ✅ Contenu du tableau non collé aux bords */
+.table-container {
+  padding: 8px 0;
+}
+
+/* ✅ Pagination plus espacée */
+.pagination-container {
+  margin-top: 28px !important;
+  padding-bottom: 10px;
+}
+
+/* ✅ Modal plus espacé et centré */
+.modal-content {
+  padding: 36px !important;
+  gap: 14px;
+}
+
+.modal-title {
+  font-size: 22px;
+  margin-bottom: 20px !important;
+}
+
+/* ✅ Espacement dans chaque champ du form */
+.form-group {
+  margin-bottom: 16px !important;
+}
+
+.form-actions {
+  margin-top: 22px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* ✅ Boutons du modal alignés */
+.form-actions .btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+}
+
+
+
 @media (max-width: 1024px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -375,6 +671,15 @@
 
   .admin-content {
     padding: 24px 20px;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-input, .filter-select {
+    width: 100%;
   }
 }
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { getFilms, createFilm, updateFilm, deleteFilm } from "../services/api"
 import "../styles/dashboard.css"
+import AdminSidebar from "../components/AdminSidebar"
 
 function ManageFilms() {
   const [films, setFilms] = useState([])
@@ -89,26 +90,7 @@ function ManageFilms() {
   return (
     <div className="admin-container">
       {/* --- SIDEBAR --- */}
-      <div className="admin-sidebar">
-        <h2 className="admin-sidebar-title">🎬 CinéGo Admin</h2>
-        <nav className="admin-nav">
-          <Link to="/admin/dashboard" className="admin-nav-link">
-            📊 Dashboard
-          </Link>
-          <Link to="/admin/films" className="admin-nav-link active">
-            🎬 Gérer Films
-          </Link>
-          <Link to="/admin/salles" className="admin-nav-link">
-            🏛️ Gérer Salles
-          </Link>
-          <Link to="/admin/seances" className="admin-nav-link">
-            🎫 Gérer Séances
-          </Link>
-          <Link to="/admin/reservations" className="admin-nav-link">
-            📋 Réservations
-          </Link>
-        </nav>
-      </div>
+      <AdminSidebar />
 
       {/* --- CONTENU PRINCIPAL --- */}
       <div className="admin-content">

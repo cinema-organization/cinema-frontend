@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link} from "react-router-dom";
 import { getStats, getAllReservations } from "../services/api";
 import "../styles/dashboard.css";
+import AdminSidebar from "../components/AdminSidebar"
 
 function AdminDashboard() {
 const [stats, setStats] = useState({
@@ -16,7 +17,7 @@ const [stats, setStats] = useState({
 
   const [reservations, setReservations] = useState([]); // ✅ Nouveau
   const [loading, setLoading] = useState(true);
-  const location = useLocation();
+  
 
   // Charger stats + réservations
   useEffect(() => {
@@ -64,51 +65,8 @@ if (statsRes.success) {
   return (
     <div className="admin-container">
       {/* 🌑 Sidebar */}
-      <div className="admin-sidebar">
-        <h2 className="admin-sidebar-title">Admin Panel</h2>
-        <nav className="admin-nav">
-          <Link
-            to="/admin/dashboard"
-            className={`admin-nav-link ${
-              location.pathname === "/admin/dashboard" ? "active" : ""
-            }`}
-          >
-            <span>📊</span> Dashboard
-          </Link>
-          <Link
-            to="/admin/films"
-            className={`admin-nav-link ${
-              location.pathname === "/admin/films" ? "active" : ""
-            }`}
-          >
-            <span>🎬</span> Gérer Films
-          </Link>
-          <Link
-            to="/admin/salles"
-            className={`admin-nav-link ${
-              location.pathname === "/admin/salles" ? "active" : ""
-            }`}
-          >
-            <span>🏛️</span> Gérer Salles
-          </Link>
-          <Link
-            to="/admin/seances"
-            className={`admin-nav-link ${
-              location.pathname === "/admin/seances" ? "active" : ""
-            }`}
-          >
-            <span>🎫</span> Gérer Séances
-          </Link>
-          <Link
-            to="/admin/reservations"
-            className={`admin-nav-link ${
-              location.pathname === "/admin/reservations" ? "active" : ""
-            }`}
-          >
-            <span>📋</span> Toutes Réservations
-          </Link>
-        </nav>
-      </div>
+      <AdminSidebar />
+      
 
       {/* 📊 Contenu principal */}
       <div className="admin-content">

@@ -5,7 +5,6 @@ import userReducer from "../slices/userSlice";
 const store = configureStore({
   reducer: {
     auth: userReducer,
-    // Ajoute: films: filmsReducer, etc.
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -15,14 +14,21 @@ const store = configureStore({
     }),
 });
 
-// Persist au boot (check localStorage)
-store.subscribe(() => {
-  const token = localStorage.getItem('token');
-  if (token && !store.getState().auth.isLoggedIn) {
-    // Refresh user via API si token valide
-    // Pour l'instant: mock ou dispatch(setUser({ role: 'user' })) après login
-    console.log('Token trouvé, user à recharger');
+// Restaure state au boot si token/user en localStorage
+const token = localStorage.getItem('token');
+const userItem = localStorage.getItem('user');
+let user = null;
+if (userItem) {
+  try {
+    user = JSON.parse(userItem);  // Safe parse with try/catch
+  } catch (error) {
+    console.error('Invalid user in localStorage:', error);
+    localStorage.removeItem('user');  // Clear corrupted
   }
-});
+}
+if (token && user) {
+  store.dispatch({ type: 'auth/setUser', payload: user });  // Restore user
+  console.log('State restored from localStorage');
+}
 
-export default store ;
+export default store;

@@ -1,5 +1,6 @@
 // src/pages/MyReservations.jsx
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getMyReservations, cancelReservation } from "../services/api";
 import "../styles/reservations.css";
 
@@ -81,12 +82,14 @@ export default function MyReservations() {
             <div className="empty-state-icon">🎬</div>
             <h2>Aucune réservation</h2>
             <p>Vous n'avez pas encore réservé de places</p>
-            <a href="/films" className="btn btn-primary">Découvrir les films</a>
+            <Link to="/films" className="btn btn-primary">
+              Découvrir les films
+            </Link>
           </div>
         ) : (
           <div className="reservations-list">
             {reservations.map((r) => {
-              // Les champs selon ta réponse API : r._id, r.user_id, r.seance_id, r.nombrePlaces, r.statut
+              // Les champs selon la réponse API : r._id, r.user_id, r.seance_id, r.nombrePlaces, r.statut
               const filmTitle = r.seance_id?.film_id?.titre || "—";
               const poster = r.seance_id?.film_id?.affiche || "/placeholder.svg";
               const seanceDate = r.seance_id?.date ? new Date(r.seance_id.date) : null;
